@@ -1,6 +1,4 @@
 class Node:
-
-    #construtor
     def __init__(self, label):
         self.label = label
         self.left = None
@@ -24,5 +22,3 @@ class Node:
     def setRight(self, right):
         self.right = right
 
-
-### COMPLETAR COM OS SETS - done

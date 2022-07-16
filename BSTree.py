@@ -1,6 +1,5 @@
 #REFERENCIA = https://github.com/python-cafe/data_structures/blob/master/arvores/tree.py
 
-#Binary Serach Tree
 from Node import Node
 
 class BSTree:
@@ -12,54 +11,56 @@ class BSTree:
         return self.root
 
     def insert(self, label):
-        ## CRIANDO O NODO QUE SERAH INSERIDO (objeto da classe -node-)
-        node = Node(label)
-        #current_node = None
-        #node_d = None
+        
+        if self.root == None:
+            return self._insert(label)
 
-        ##verificando se a arvore esta vazia , ou nao
-        if self.empty(): ##raiz eh o nodo que esta sendo inserido
+        elif self.search(label):
+            print("Já existe esse valor na arvore.")
+            return False
+
+        return self._insert(label)
+
+    def _insert(self, label):
+        node = Node(label)
+
+        if self.root is None:
             self.root = node
         else:
-            # arvore nao esta vazia - insercao sera realizada de forma recursiva
+
             node_d = None
             current_node = self.root
 
-            while True: #se repete ate o meu caso base (node == null)
+            while True:
 
-                #1 - etapa do fluxo do percurso
-                if current_node != None: #cheguei no caso base, aqui vou inserir
+                if current_node != None:
 
                     node_d = current_node
-
-                    #verifica se eh maior ou menor - se vai para direita ou para esquerda
-                    if node.getLabel() < current_node.getLabel(): #esquerda
+                    
+                    if node.getLabel() < current_node.getLabel():
                         current_node = current_node.getLeft()
-                    else: #vai para direita
+                    else:
                         current_node = current_node.getRight()
 
-                # 2 - para encontrar onde deve ser inserido, ate que o nodo atual seja none
-                else: #current_node eh NONE --> eh para realizar a insercao
-                    #insere ou na direita, ou na esquerda
+                else:
+
                     if node.getLabel() < node_d.getLabel(): 
-                        #insercao na esquerda do pai
                         node_d.setLeft(node)
                     else:
-                        #insercao na direita do pai
                         node_d.setRight(node)
-                    break #sai do grupo
+
+                    return node
          
     def search(self, label):
-        return self._search(label, self.getRoot() )
+        if(not self.empty()):
+            return self._search(label, self.getRoot())
 
     def _search(self, label, node):
 
         if node is None:
-            print("\n", label, "não encontrado")
             return node
 
         if node.getLabel() == label:
-            print("\n", node.label, "encontrado")
             return node
 
         if label < node.getLabel():
@@ -68,67 +69,118 @@ class BSTree:
             return self._search(label, node.getRight())
 
     def empty(self):
-        if self.root == None: #se a raiz nao existe
-            return True #sim, a arvore esta vazia
+        if self.root == None:
+            print("Arvore esta vazia.")
+            return True
         return False
 
-    #metodo pre-ordem para percorrer : raiz, esquerda, direita
-    def showTree(self, current_node):
-        if current_node != None:
-            print('%d' % current_node.getLabel(), end=' ')
-            self.showTree(current_node.getLeft())
-            self.showTree(current_node.getRight())
+    def showTreePreOrder(self):
+        if (not self.empty()):
+            return self._showTreePreOrder(self.root)
 
-    def min(self, node = 0):
+    def _showTreePreOrder(self, node):
+        if node != None:
+            print('%d' % node.getLabel(), end=' ')
+            self._showTreePreOrder(node.getLeft())
+            self._showTreePreOrder(node.getRight())
+
+    def showTreePosOrder(self, node=None):
+
+        if(self.empty()):
+            return
+
+        if node is None:
+            node = self.root
+
+        if node.getLeft():
+            self.showTreePosOrder(node.getLeft())
+
+        if node.getRight():
+            self.showTreePosOrder(node.getRight())
+
+        print('%d' % node.getLabel(), end=' ')
+
+    def showTreeInOrder(self, node=None):
+
+        if(self.empty()):
+            return
+
+        if node is None:
+            node = self.root
+
+        if node.getLeft():
+            self.showTreeInOrder(node.getLeft())
+        print('%d' % node.getLabel(), end=' ')
+
+        if node.getRight():
+            self.showTreeInOrder(node.getRight())
+
+    def min(self, node=0):
         if node == 0:
-            node = self.getRoot()
+            node = self.root
+
         while node.getLeft():
             node = node.getLeft()
+
         return node.getLabel()
 
     def remove(self, label):
-        return self._remove(label, self.root)
+        if(not self.empty()):
+            return self._remove(label, self.root)
 
     def _remove(self, label, node):
-        ## 1 CASO: se o nodo a ser removido NAO TEM FILHOS - folha
-        ######### CASO MAIS SIMPLES: so preciso setar/apontar o pai (do nodo removido) para NONE
 
         if node is None:
+            print(f"\nElemento {label} nao encontrado")
+
             return node
-        
-        # Se o valor for menor, desce à esquerda
+
         if label < node.getLabel():
             node.setLeft(self._remove(label, node.getLeft()))
 
-        # Se o valor for maior, desce à direita
         elif label > node.getLabel():
             node.setRight(self._remove(label, node.getRight()))
-           
-        # Se não for nem menor, nem maior, encontramos! Vamos remover...
+
         else:
+
             if node.getLeft() is None:
                 return node.getRight()
+
             elif node.getRight() is None:
                 return node.getLeft()
+
             else:
-                ### 3 CASO: nodo a ser removido tem DOIS FILHOS
-                ###### DEVE PEGAR O MENOR ELEMENTO DA SUBARVORE DA DIREITA
-                
-                # Substituto é o sucessor do valor a ser removido
+
                 substitute = self.min(node.getRight())
-                # Ao invés de trocar a posição dos nós, troca o valor
-                node.setlabel(substitute) 
-                # Depois, remove o substituto da subárvore à direita
-                node.setRight(self.remove(substitute, node.getRight())) 
+
+                node.setLabel(substitute)
+
+                node.setRight(self._remove(substitute, node.getRight()))
 
         return node
-    
-    ### METODO DE REMOCAO 
-    ### 3 CASOS 
-    
 
-    ## 2 CASO: nodo a ser removido tem UM FILHO APENAS
-    ##### o filho do nodo removido PASSA PARA O LUGAR DELE - FILHO SOBE DE NIVEL 
+    def showConnections(self, node=None):
+
+        if (self.empty()):
+            return
+
+        if node is None:
+            node = self.root
+
+        if node.getLeft() and node.getRight() and not node == self.root:
+            print(f"{node.getLabel()} -> {node.getLeft().getLabel()}")
+            print(f"{node.getLabel()} -> {node.getRight().getLabel()}")
+
+        if node.getLeft():
+            if not node.getRight() or node == self.root:
+                print(f"{node.getLabel()} -> {node.getLeft().getLabel()}")
+            self.showConnections(node.getLeft())
+
+        if node.getRight():
+            if not node.getLeft() or node == self.root:
+                print(f"{node.getLabel()} -> {node.getRight().getLabel()}")
+            self.showConnections(node.getRight())
+
 
 
 
